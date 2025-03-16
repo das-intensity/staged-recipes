@@ -1,0 +1,102 @@
+context:
+  name: executorch
+  version: "0.5.0"
+
+package:
+  name: ${{ name|lower }}
+  version: ${{ version }}
+
+source:
+  # Need to use git repo because of submodules
+  git: https://github.com/pytorch/executorch
+  tag: v${{ version }}
+  # Repo needs to be in a dir named exactly 'executorch'
+  target_directory: executorch
+
+build:
+  skip:
+    # https://github.com/pytorch/executorch/blob/v0.5.0/pyproject.toml#L52
+    - match(python, "<3.10")
+    - match(python, ">3.10")
+    - win
+  number: 0
+
+requirements:
+  build:
+    # Standard C/C++ compilation tools
+    - ${{ compiler('c') }}
+    - ${{ compiler('cxx') }}
+    - ${{ stdlib('c') }}
+    - make
+    - python
+    # Torch source seems to be also required
+    - libtorch
+    #- pytorch
+    # Below deps taken from https://github.com/pytorch/executorch/blob/v0.5.0/pyproject.toml#L1-L10
+    - cmake
+    - pip>23
+    - pyyaml
+    # - NOTE: executorch specifies zstd (pypi), which corresponds to python-zstd on CF, NOT pyzstd
+    - python-zstd
+    - setuptools>=63
+    - tomli
+    - wheel
+    #- zstd
+  host:
+    - python
+    # Used to decompress buck2
+    - zstd
+    #- rust
+    # Used to download buck2
+    - wget
+    #- pip
+    #- setuptools
+  run:
+    - python
+    # Below deps taken from https://github.com/pytorch/executorch/blob/v0.5.0/pyproject.toml#L53-L72
+    - expecttest
+    - flatbuffers
+    - hypothesis
+    - mpmath
+    - numpy
+    - packaging
+    - pandas
+    - parameterized
+    - pytest
+    - pytest-xdist
+    - pyyaml
+    - ruamel.yaml
+    - sympy
+    - tabulate
+    - pytorch
+    - torchaudio
+    - torchvision
+    - typing-extensions
+
+# tests:
+#   - script:
+#     - echo "find ${PREFIX}/ -name '*executorch*'"
+#     - find ${PREFIX}/ -name '*executorch*'
+#     - echo "find $PREFIX/lib/python3.10/site-packages/torchgen/executorch"
+#     - find $PREFIX/lib/python3.10/site-packages/torchgen/executorch
+#   - python:
+#       imports:
+#       #- executorch
+#       - executorch.exir.program
+#       # Also run `pip check` to verify the integrity 
+#       pip_check: true
+
+about:
+  homepage: https://github.com/pytorch/executorch
+  summary: 'On-device AI across mobile, embedded and edge for PyTorch'
+  description: |
+    ExecuTorch is an end-to-end solution for enabling on-device inference capabilities across mobile and edge devices including wearables, embedded devices and microcontrollers. It is part of the PyTorch Edge ecosystem and enables efficient deployment of PyTorch models to edge devices.
+  license: BSD-3-Clause
+  license_file: executorch/LICENSE
+  # The documentation and repository URLs are optional.
+  documentation: https://pytorch.org/executorch-overview
+  repository: https://github.com/pytorch/executorch
+
+extra:
+  recipe-maintainers:
+    - das-intensity
