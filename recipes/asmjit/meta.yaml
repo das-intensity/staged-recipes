@@ -1,0 +1,57 @@
+{% set name = "asmjit" %}
+{% set version = "0.0.0" %}
+{% set commit = "5134d396bd00c1b63259387acdbb12dfdf009f9b" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/asmjit/asmjit/archive/{{ commit }}.tar.gz
+  sha256: 7a138a9715ac52ac9c259818c05fe42dbf19233dbf82188640aaf32259fa1d34
+
+build:
+  number: 0
+  run_exports:
+    - {{ pin_subpackage('asmjit', max_pin='x') }}
+
+requirements:
+  build:
+    - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}
+    - cmake >=3.24
+    - make  # [unix]
+    - ninja  # [win]
+  host:
+  run:
+
+test:
+  commands:
+    - test -f ${PREFIX}/include/asmjit/asmjit.h  # [unix]
+    - test -f ${PREFIX}/lib/libasmjit${SHLIB_EXT}  # [unix]
+    - if not exist %LIBRARY_INC%\\asmjit\\asmjit.h exit 1  # [win]
+    - if not exist %LIBRARY_LIB%\\asmjit.lib exit 1  # [win]
+    - if not exist %LIBRARY_BIN%\\asmjit.dll exit 1  # [win]
+
+about:
+  home: https://asmjit.com
+  summary: Low-latency machine code generation library
+  description: |
+    AsmJit is a lightweight library for machine code generation written in C++ language.
+    It can generate machine code for X86, X64, and ARM architectures with a focus on
+    low-latency code generation and JIT compilation. AsmJit provides:
+    - Complete x86/x64 instruction set with AVX-512 and AMX support
+    - Complete AArch64 instruction set including SVE/SVE2
+    - Built-in CPU detection
+    - Advanced instruction validation
+    - Logging and error handling
+    - Virtual memory management
+    - Code generation performance comparable to hand-written assembly
+  license: Zlib
+  license_file: LICENSE.md
+  doc_url: https://asmjit.com/doc/index.html
+  dev_url: https://github.com/asmjit/asmjit
+
+extra:
+  recipe-maintainers:
+    - dahm
